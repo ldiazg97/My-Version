@@ -1,6 +1,6 @@
 /* Cuando está colapsado */
 .leftSide.collapsed {
-  width: 5rem; /* versión icon-only */
+  width: 3rem; /* versión icon-only */
 }
 
 /* Oculta el texto en modo colapsado */
@@ -13,10 +13,17 @@
   justify-content: center;
 }
 
+@media (max-width: 768px) {
+  .menu.menu-horizontal li button span {
+    display: none;
+  }
+}
+
 .layout {
   width: 100%;
   height: 100vh;
   display: grid;
+  overflow-x: hidden; /* 🔒 oculta scroll horizontal */
   grid:
     "leftSide header " auto
     "leftSide body " 1fr
