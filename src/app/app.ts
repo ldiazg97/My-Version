@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
+
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet],
@@ -9,4 +10,10 @@ import { RouterOutlet } from '@angular/router';
 })
 export class App {
   protected title = 'rc-seowebmas-angular';
+  isCollapsed = false;
+  currentYear = new Date().getFullYear();
+
+  toggleSidebar() {
+    this.isCollapsed = !this.isCollapsed;
+  }
 }
