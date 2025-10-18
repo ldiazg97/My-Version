@@ -1,0 +1,180 @@
+<!-- CONTENEDOR -->
+<div class="card bg-base-100 shadow-md border border-base-200">
+  <!-- HEADER -->
+  <div class="card-body">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <h2 class="card-title text-base-content font-semibold">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                d="M21 4H3m15 4H6m13 4H9m7 4h-6m1 4H9" />
+        </svg>
+        {{ title }}
+      </h2>
+
+      <div class="flex items-center gap-2">
+        <!-- BUSCAR -->
+        <input
+          type="text"
+          placeholder="Buscar..."
+          class="input input-sm input-bordered w-full max-w-xs"
+          (input)="onSearchChange($event)"
+        />
+
+        <!-- PAGE SIZE -->
+        <select class="select select-sm select-bordered" (change)="onPageSizeChange($event)">
+          <option [selected]="pageSize() === 5" value="5">5</option>
+          <option [selected]="pageSize() === 10" value="10">10</option>
+          <option [selected]="pageSize() === 25" value="25">25</option>
+          <option [selected]="pageSize() === 50" value="50">50</option>
+        </select>
+
+        <!-- COLLAPSE -->
+        <button class=" btn-sm " (click)="toggleCollapse()">
+          @if (collapsed()) {
+            <!-- Ícono para expandir -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="m6 9l6 6l6-6" />
+            </svg>
+          } @else {
+            <!-- Ícono para colapsar -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="m18 15l-6-6l-6 6" />
+            </svg>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUERPO: sólo si no está colapsada -->
+  @if (!collapsed()) {
+    <div class="overflow-x-auto">
+      <table class="table table-zebra w-full">
+        <thead>
+        <tr class="bg-base-200 text-base-content">
+          <th class="whitespace-nowrap">#</th>
+          @for (col of columns; track col.field) {
+            <th
+              class="cursor-pointer select-none whitespace-nowrap"
+              (click)="col.sortable && toggleSort(getFieldKey(col.field))"
+            >
+              <span class="inline-flex items-center gap-1">
+                {{ col.header }}
+                @if (sortField() === getFieldKey(col.field)) {
+                  @if (sortDirection() === 'asc') {
+                    <!-- SVG para ascendente -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"
+                            d="m3 8l4-4l4 4M7 4v16m4-8h10m-10 4h7m-7 4h4" />
+                  </svg>
+                  } @else {
+                    <!-- SVG para descendente -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2"
+                          d="m3 16l4 4l4-4m-4 4V4m4 0h10M11 8h7m-7 4h4" />
+                    </svg>
+                  }
+                }
+              </span>
+
+            </th>
+          }
+          <th class="text-center">Acciones</th>
+        </tr>
+        </thead>
+
+        <tbody>
+          @for (row of paginatedData(); track row) {
+            <tr class="hover:bg-base-200">
+              <td class="whitespace-nowrap text-base-content">{{ startItem() + paginatedData().indexOf(row) + 1 }}</td>
+
+              @for (col of columns; track col.field) {
+                <td class="whitespace-nowrap text-base-content">
+                  {{ getCellValue(row, col) }}
+                </td>
+              }
+
+              <!-- Acciones: si row.actions existe y su longitud -->
+              <td class="text-center">
+                @if ((row.actions?.length ?? 0) <= 2) {
+                  <div class="flex justify-center gap-2">
+                    @for (action of row.actions ?? []; track action.label) {
+                      <button class="btn btn-xs btn-primary" (click)="action.onClick(row)">
+                        {{ action.label }}
+                      </button>
+                    }
+                  </div>
+                } @else {
+                  <div class="dropdown dropdown-end">
+                    <button tabindex="0" class=" btn-xs m-1">
+                      <!-- icono 3 puntos -->
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                           stroke-width="2">
+                          <circle cx="12" cy="12" r="1" />
+                          <circle cx="12" cy="5" r="1" />
+                          <circle cx="12" cy="19" r="1" />
+                        </g>
+                      </svg>
+                    </button>
+                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40">
+                      @for (action of row.actions ?? []; track action.label) {
+                        <li><a (click)="action.onClick(row)">{{ action.label }}</a></li>
+                      }
+                    </ul>
+                  </div>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PAGINACIÓN -->
+    <div class="flex flex-wrap justify-between items-center gap-2 p-4 text-sm text-base-content bg-base-100">
+      <div>
+        Mostrando <b>{{ startItem() + 1 }}</b>–<b>{{ endItem() }}</b> de <b>{{ totalItems() }}</b>
+      </div>
+
+      <div class="flex items-center justify-center gap-3 mt-4">
+        <!-- Botón Anterior -->
+        <button
+          class="flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          [disabled]="currentPage() === 1"
+          (click)="prevPage()"
+          aria-label="Página anterior"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="m11 17-5-5 5-5M18 17l-5-5 5-5" />
+          </svg>
+        </button>
+
+        <!-- Número de página -->
+        <div
+          class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-400 text-gray-700 font-semibold">
+          {{ currentPage() }} / {{ totalPages() }}
+        </div>
+
+        <!-- Botón Siguiente -->
+        <button
+          class="flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          [disabled]="currentPage() === totalPages()"
+          (click)="nextPage()"
+          aria-label="Página siguiente"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 rotate-180" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="m11 17-5-5 5-5M18 17l-5-5 5-5" />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  }
+</div>

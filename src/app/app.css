@@ -1,7 +1,14 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 /* Cuando está colapsado */
 .leftSide.collapsed {
   width: 3rem; /* versión icon-only */
-}
+ }
 
 /* Oculta el texto en modo colapsado */
 .leftSide.collapsed ul li a span {
@@ -38,10 +45,12 @@
 
 .leftSide {
   grid-area: leftSide;
+
 }
 
 .main {
   grid-area: body;
+
 }
 
 .footer1 {
